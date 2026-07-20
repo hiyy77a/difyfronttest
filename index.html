@@ -1,546 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>竞赛推荐</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --purple-1: #4e3fc4;
-    --purple-2: #7b52d6;
-    --purple-3: #c06bd8;
-    --btn-purple-1: #5b4bd6;
-    --btn-purple-2: #7d5ee0;
-    --text-dark: #2b2f38;
-    --text-gray: #5b6270;
-    --text-light: #8a91a0;
-    --border: #ececf3;
-    --page-bg: #eef0fa;
-    --green-1: #33cf57;
-    --green-2: #5be07f;
-  }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-      "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-    background: var(--page-bg);
-    color: var(--text-dark);
-    padding: 20px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .app {
-    max-width: 940px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 8px 30px rgba(60, 60, 120, 0.08);
-  }
-
-  .hidden { display: none !important; }
-
-  /* ---------- Header ---------- */
-  .header {
-    background: linear-gradient(100deg, var(--purple-1) 0%, var(--purple-2) 55%, var(--purple-3) 100%);
-    padding: 20px 26px;
-  }
-  .header .title-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.16);
-    padding: 8px 18px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .header .title-chip .emoji { font-size: 20px; }
-
-  /* ---------- Intro ---------- */
-  .intro {
-    padding: 22px 26px 6px;
-    color: var(--text-gray);
-    font-size: 15px;
-    line-height: 1.9;
-  }
-
-  /* ---------- Filter pills ---------- */
-  .filters {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 26px 20px;
-    flex-wrap: wrap;
-  }
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    background: #fff;
-    text-decoration: none;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-  .pill:hover { transform: scale(1.05); }
-  .pill.special {
-    background: linear-gradient(90deg, #f5a623, #f7c948);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
-  }
-  .pill.first { color: #4d7de0; border: 1.5px solid #bcd0f7; }
-  .pill.second { color: #2fb59a; border: 1.5px solid #b3e6d9; }
-  .pill.total {
-    color: var(--text-gray);
-    font-weight: 600;
-    cursor: pointer;
-    padding-left: 4px;
-  }
-  .pill.total:hover { transform: scale(1.05); }
-
-  /* ---------- Cards ---------- */
-  .cards { padding: 0 26px 26px; display: flex; flex-direction: column; gap: 20px; }
-
-  .card {
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 22px;
-    background: #fff;
-    cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-    box-shadow: 0 2px 8px rgba(60, 60, 120, 0.04);
-  }
-  .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 28px rgba(60, 60, 120, 0.12);
-  }
-
-  .card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 19px;
-    font-weight: 700;
-    color: var(--text-dark);
-  }
-  .card-title .emoji { font-size: 20px; }
-
-  .badge {
-    flex-shrink: 0;
-    padding: 5px 15px;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .badge.purple { background: linear-gradient(90deg, #6a6ae8, #8a6ae8); }
-  .badge.gold { background: linear-gradient(90deg, #f5a623, #f7c948); }
-
-  /* progress */
-  .match-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-  .match-label { font-size: 14px; color: var(--text-gray); white-space: nowrap; }
-  .match-bar {
-    flex: 1;
-    height: 12px;
-    background: #eef0f4;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .match-fill {
-    height: 100%;
-    border-radius: 8px;
-    background: linear-gradient(90deg, var(--green-1), var(--green-2));
-  }
-  .match-pct { font-size: 14px; color: var(--text-gray); font-weight: 600; min-width: 42px; text-align: right; }
-
-  /* info grid */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    row-gap: 15px;
-    column-gap: 20px;
-    margin-bottom: 20px;
-  }
-  .info-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 14.5px;
-    color: var(--text-gray);
-  }
-  .info-item .ic { font-size: 16px; width: 18px; text-align: center; }
-  .info-item .stars { letter-spacing: 1px; color: #f5b301; }
-
-  /* buttons */
-  .actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 14px;
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 46px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-  .btn:hover { transform: scale(1.05); }
-  .btn.primary {
-    background: linear-gradient(90deg, var(--btn-purple-1), var(--btn-purple-2));
-    color: #fff;
-    box-shadow: 0 6px 16px rgba(91, 75, 214, 0.28);
-  }
-  .btn.ghost {
-    background: #f3f4f8;
-    color: #c2c6cf;
-    cursor: default;
-  }
-  .btn.ghost:hover { transform: none; }
-  .btn.outline {
-    background: #fff;
-    border: 1px solid #dfe2ea;
-    color: var(--text-gray);
-  }
-
-  /* ==================================================
-     Detail view
-     ================================================== */
-  .detail-header {
-    background: linear-gradient(100deg, var(--purple-1) 0%, var(--purple-2) 55%, var(--purple-3) 100%);
-    padding: 16px 26px 22px;
-  }
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 4px 2px;
-    margin-bottom: 12px;
-    transition: transform 0.18s ease;
-  }
-  .back-link:hover { transform: scale(1.05); color: #fff; }
-  .detail-title {
-    color: #fff;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    letter-spacing: 0.5px;
-  }
-  .detail-tags { display: flex; flex-wrap: wrap; gap: 12px; }
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 7px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.18s ease;
-  }
-  .tag:hover { transform: scale(1.05); }
-  .tag .ic { font-size: 15px; }
-
-  .detail-body { padding: 24px 26px 30px; }
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 18px;
-  }
-  .info-table { display: flex; flex-direction: column; gap: 10px; }
-  .info-row {
-    display: grid;
-    grid-template-columns: 132px 1fr;
-    align-items: center;
-    gap: 14px;
-  }
-  .info-row .lab {
-    background: #f4f5f9;
-    color: var(--text-gray);
-    font-size: 14.5px;
-    padding: 11px 16px;
-    border-radius: 8px;
-  }
-  .info-row .val {
-    color: var(--text-dark);
-    font-size: 14.5px;
-    font-weight: 600;
-    padding: 4px 2px;
-    line-height: 1.7;
-  }
-  .info-row .val.highlight { color: #4d7de0; }
-
-  @media (max-width: 640px) {
-    .info-grid { grid-template-columns: 1fr; }
-    .actions { grid-template-columns: 1fr; }
-    .card-title { font-size: 16px; }
-    .detail-title { font-size: 20px; }
-    .info-row { grid-template-columns: 104px 1fr; }
-  }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>烟雨江南 · 一窗一境</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root { --ink:#17231e; --paper:#eee7d6; --verm:#bb4a32; --gold:#b69a57; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:320px; overflow:hidden; color:var(--ink); background:#17221e; font-family:"Noto Serif SC",serif; }
+    button { font:inherit; }
+    #experience { height:100vh; min-height:620px; position:relative; overflow:hidden; background:#223029; }
+    .scene { position:absolute; inset:0; visibility:hidden; opacity:0; overflow:hidden; }
+    .scene.active { visibility:visible; opacity:1; }
+    .scene::after { content:""; position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 120px rgba(8,15,12,.58); }
+    .scene-title { position:absolute; z-index:8; top:34px; left:50%; transform:translateX(-50%); color:#e6dfc9; text-align:center; letter-spacing:.3em; font-size:12px; white-space:nowrap; }
+    .scene-title strong { display:block; margin-bottom:6px; font-family:"Ma Shan Zheng",cursive; font-size:31px; font-weight:400; letter-spacing:.12em; }
+    .hint { position:absolute; z-index:12; bottom:35px; left:50%; transform:translateX(-50%); color:#e3d9bd; font-size:12px; letter-spacing:.22em; white-space:nowrap; opacity:.9; }
+    .hint::after { content:""; display:block; width:1px; height:35px; background:#d9cda9; margin:11px auto 0; }
+    .grain { position:absolute; z-index:10; inset:0; pointer-events:none; opacity:.15; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E"); mix-blend-mode:soft-light; }
+    /* room */
+    #room { background:radial-gradient(ellipse at 50% 35%,#647162 0,#3a493e 36%,#1c2823 75%); }
+    .wall { position:absolute; inset:0 0 20%; background:linear-gradient(90deg,#26352d,#455447 32%,#536050 52%,#2a382f); }
+    .wall::after { content:""; position:absolute; inset:0; opacity:.18; background:repeating-linear-gradient(87deg,transparent 0 58px,#17221c 59px 60px); }
+    .floor { position:absolute; height:28%; bottom:0; left:-5%; width:110%; background:linear-gradient(168deg,#312a22 0 22%,#171b17 23%); transform:perspective(400px) rotateX(8deg); }
+    .floor::after { content:""; position:absolute; inset:18% 0 0; background:repeating-linear-gradient(90deg,transparent 0 105px,rgba(176,145,91,.13) 106px 108px); }
+    .lantern { position:absolute; z-index:3; top:11%; width:72px; height:100px; background:linear-gradient(90deg,#843a29,#d07642 48%,#8e3428); border-radius:5px 5px 19px 19px; box-shadow:0 0 38px 16px rgba(215,106,48,.22); }
+    .lantern:before,.lantern:after { content:""; position:absolute; left:-8px; width:88px; height:8px; background:#38291d; border-radius:50%; }.lantern:before{top:-8px}.lantern:after{bottom:-8px}.lantern.left{left:11%}.lantern.right{right:11%}
+    .window-wrap { position:absolute; z-index:5; width:min(58vw,620px); height:min(64vw,670px); min-width:330px; min-height:380px; max-height:74vh; left:50%; top:48%; transform:translate(-50%,-50%); filter:drop-shadow(0 20px 20px rgba(0,0,0,.42)); }
+    .window-glow { position:absolute; inset:6% 5%; background:linear-gradient(135deg,#a8b3ab,#4b6b68 55%,#273e44); border:15px solid #5a3423; box-shadow:inset 0 0 40px #172e31; }
+    .window-glow::before { content:"远山如黛"; position:absolute; bottom:7%; left:10%; font-family:"Ma Shan Zheng"; color:#d2d5bd; font-size:32px; opacity:.7; }
+    .shutter { position:absolute; top:0; bottom:0; width:51%; z-index:3; background:linear-gradient(90deg,#442719,#6d4227 44%,#2f2018); border:8px solid #291b15; transition:filter .3s; }
+    .shutter.left { left:0; transform-origin:left center; border-radius:180px 0 0 0; }.shutter.right { right:0; transform-origin:right center; border-radius:0 180px 0 0; }
+    .lattice { position:absolute; inset:12% 8%; overflow:hidden; background:repeating-linear-gradient(45deg,transparent 0 38px,#211711 40px 47px,transparent 49px 88px),repeating-linear-gradient(-45deg,transparent 0 38px,#211711 40px 47px,transparent 49px 88px); opacity:.86; }
+    .shutter:after { content:""; position:absolute; inset:7%; border:5px solid #1f1510; border-radius:44% 44% 0 0; }.window-wrap:hover .shutter { filter:brightness(1.12); }
+    .window-cue { position:absolute; z-index:7; top:50%; left:50%; transform:translate(-50%,-50%); color:#eee4c9; background:rgba(25,30,23,.64); border:1px solid rgba(233,217,174,.46); padding:11px 20px; letter-spacing:.18em; font-size:13px; white-space:nowrap; cursor:pointer; transition:.25s; }.window-cue:hover{background:#a84530;}
+    .vase { position:absolute; z-index:4; bottom:19%; right:17%; width:82px; height:116px; background:linear-gradient(90deg,#28474d,#88a5a3,#33565b); border-radius:35% 35% 45% 45%; box-shadow:0 15px 12px rgba(0,0,0,.34); }.vase:before{content:"";position:absolute;width:42px;height:55px;top:-34px;left:20px;border-left:3px solid #293d26;border-radius:50%;transform:rotate(-24deg)}
+    /* pond */
+    #pond { background:radial-gradient(ellipse at 50% 45%,#406765 0,#21484a 47%,#102c31 100%); }
+    .mist { position:absolute; z-index:2; width:70%; height:17%; background:rgba(204,219,203,.15); filter:blur(26px); border-radius:50%; left:15%; top:21%; }.mist.two{top:64%;left:-12%;}
+    .pond-mountains { position:absolute; top:0; width:100%; height:34%; opacity:.4; background:linear-gradient(155deg,transparent 0 38%,#263f3e 39% 55%,transparent 56%),linear-gradient(28deg,transparent 0 53%,#172e30 54% 70%,transparent 71%); }
+    .lotus { position:absolute; z-index:4; width:84px; height:30px; border-radius:50%; background:#4c7658; box-shadow:inset -15px -5px #31583e; }.lotus:after{content:"";position:absolute;width:1px;height:22px;background:#8b5354;left:42px;top:-13px;transform:rotate(45deg)}.l1{left:11%;top:61%}.l2{right:12%;top:32%;transform:scale(.65)}.l3{right:22%;bottom:14%;transform:scale(.75)}
+    .fish { position:absolute; z-index:7; width:112px; height:53px; cursor:pointer; will-change:transform; }.fish .body{position:absolute;width:83px;height:48px;border-radius:52% 46% 48% 52%;box-shadow:inset -10px -7px 10px rgba(0,0,0,.23),0 5px 13px rgba(0,0,0,.2)}.fish .tail{position:absolute;right:0;top:8px;width:30px;height:36px;clip-path:polygon(100% 0,26% 50%,100% 100%);background:inherit;}.fish .eye{position:absolute;width:6px;height:6px;top:13px;left:18px;border-radius:50%;background:#e9d6a5}.fish.red .body,.fish.red .tail{background:#bd4936}.fish.black .body,.fish.black .tail{background:#152927}.fish.red{left:25%;top:48%}.fish.black{right:27%;top:58%;transform:scaleX(-1)}
+    .ripple { position:absolute; z-index:3; width:15px; height:8px; border:1px solid rgba(218,240,224,.48); border-radius:50%; animation:ripple 2.5s infinite; }.ripple:nth-of-type(2n){animation-delay:-1.2s}@keyframes ripple{from{transform:scale(.2);opacity:.85}to{transform:scale(7);opacity:0}}
+    .rain { position:absolute; z-index:9; inset:-10% 0 0; pointer-events:none; overflow:hidden; }.drop{position:absolute;top:-8%;width:1px;height:42px;background:linear-gradient(transparent,rgba(221,239,235,.72));animation:rain linear infinite}.drop:nth-child(3n){height:27px;opacity:.5}.drop:nth-child(4n){height:58px;opacity:.7}
+    .taiji-message { position:absolute; z-index:11; left:50%; top:72%; transform:translateX(-50%); color:#efe7cd; border:1px solid rgba(238,226,193,.58); background:rgba(17,38,36,.62); padding:11px 19px; font-size:13px; letter-spacing:.15em; opacity:0; pointer-events:none; transition:.4s; white-space:nowrap; }.taiji-ready .taiji-message{opacity:1;pointer-events:auto;cursor:pointer}.taiji-ready .taiji-message:hover{background:#a94632}
+    /* garden */
+    #garden { background:linear-gradient(#536f68 0,#2e5551 38%,#243f37 100%); }
+    .garden-sky {position:absolute;inset:0 0 49%;background:radial-gradient(ellipse at 60% 10%,#a5afa0 0,rgba(132,156,145,.35) 31%,transparent 66%)}
+    .path {position:absolute;z-index:3;bottom:-12%;left:27%;width:46%;height:75%;background:linear-gradient(90deg,#788077,#a4a598 50%,#68776c);clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);}.path:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 42px,rgba(52,71,61,.45) 43px 45px),repeating-linear-gradient(65deg,transparent 0 65px,rgba(54,69,62,.35) 66px 68px)}
+    .arch {position:absolute;z-index:5;left:50%;top:22%;width:230px;height:290px;transform:translateX(-50%);border:28px solid #778178;border-bottom:0;border-radius:130px 130px 0 0;box-shadow:0 10px 13px rgba(7,22,18,.25)}.arch:after{content:"月洞";position:absolute;top:-17px;left:50%;transform:translateX(-50%);color:#404e46;font-family:"Ma Shan Zheng";font-size:21px}.arch-inside{position:absolute;inset:16px 18px 0;background:linear-gradient(#6f8f82,#315e51);border-radius:100px 100px 0 0}
+    .tree {position:absolute;z-index:6;left:9%;bottom:-9%;height:92%;width:40%;transform-origin:bottom left}.trunk{position:absolute;bottom:0;left:31%;height:100%;width:34px;background:linear-gradient(90deg,#2b382a,#66533a 48%,#283829);transform:rotate(11deg);border-radius:50%}.branch{position:absolute;height:17px;background:#4c4931;transform-origin:left;border-radius:20px}.b1{width:260px;left:34%;bottom:69%;transform:rotate(-20deg)}.b2{width:208px;left:34%;bottom:55%;transform:rotate(8deg)}.b3{width:160px;left:33%;bottom:82%;transform:rotate(-40deg)}
+    .willow {position:absolute;z-index:8;width:2px;height:190px;background:linear-gradient(#596d34,#b1b85d);transform-origin:top;opacity:.9}.willow:after{content:"";position:absolute;top:20px;left:-6px;width:13px;height:42px;background:#778e44;border-radius:100% 0 100% 0;box-shadow:4px 45px #83994d,-4px 88px #71863d,5px 129px #829749}.willow:nth-child(2n){height:245px}.willow:nth-child(3n){height:145px}
+    .blossom {position:absolute;z-index:9;width:12px;height:12px;opacity:0;transform:scale(.1)}.blossom i{position:absolute;width:8px;height:8px;background:#e5b6bb;border-radius:50%}.blossom i:nth-child(1){left:2px;top:-4px}.blossom i:nth-child(2){right:-2px;top:2px}.blossom i:nth-child(3){left:2px;bottom:-3px}.blossom i:nth-child(4){left:-4px;top:3px}.blossom b{position:absolute;left:4px;top:4px;width:4px;height:4px;border-radius:50%;background:#c78b5f}.garden-open .blossom{opacity:1;transform:scale(1)}
+    .garden-note {position:absolute;z-index:11;top:67%;left:50%;transform:translateX(-50%);background:rgba(25,53,44,.5);border:1px solid rgba(222,222,190,.5);padding:10px 17px;color:#f1e9d5;font-size:12px;letter-spacing:.16em;white-space:nowrap}
+    .nav {position:absolute;z-index:20;right:25px;bottom:24px;display:flex;gap:9px}.nav button{color:#e9ddc5;background:rgba(18,37,31,.56);border:1px solid rgba(226,211,173,.42);padding:8px 12px;cursor:pointer;font-size:12px;letter-spacing:.1em}.nav button:hover{background:#a94932}
+    @media(max-width:650px){.window-wrap{width:88vw}.lantern.left{left:2%}.lantern.right{right:2%}.scene-title{top:23px}.arch{transform:translateX(-50%) scale(.78);top:17%}.tree{left:-11%;width:69%}.fish{transform:scale(.78)}.fish.black{transform:scaleX(-1) scale(.78)}.garden-note{top:62%}}
+  </style>
 </head>
 <body>
-  <div class="app">
-    <div id="view-list"></div>
-    <div id="view-detail" class="hidden"></div>
-  </div>
-
+  <main id="experience">
+    <section id="room" class="scene active"><div class="wall"></div><div class="floor"></div><div class="lantern left"></div><div class="lantern right"></div><div class="vase"></div><div class="window-wrap" id="window"><div class="window-glow"></div><div class="shutter left"><div class="lattice"></div></div><div class="shutter right"><div class="lattice"></div></div><button class="window-cue">推窗 · 见雨</button></div><div class="scene-title"><strong>一窗一境</strong>烟雨江南 · 室内</div><div class="hint">轻触花窗，听雨入梦</div></section>
+    <section id="pond" class="scene"><div class="pond-mountains"></div><div class="mist"></div><div class="mist two"></div><div class="lotus l1"></div><div class="lotus l2"></div><div class="lotus l3"></div><div class="fish red" id="redFish"><div class="body"><div class="eye"></div></div><div class="tail"></div></div><div class="fish black" id="blackFish"><div class="body"><div class="eye"></div></div><div class="tail"></div></div><div class="rain"></div><div class="taiji-message" id="taijiMessage">阴阳相逢 · 点击入园</div><div class="scene-title"><strong>池上听雨</strong>雨落涟漪 · 双鲤相戏</div><div class="hint">轻拂鲤影，引它们相会</div></section>
+    <section id="garden" class="scene"><div class="garden-sky"></div><div class="path"></div><div class="arch" id="arch"><div class="arch-inside"></div></div><div class="tree" id="tree"><div class="trunk"></div><div class="branch b1"></div><div class="branch b2"></div><div class="branch b3"></div><div id="willowHolder"></div></div><div id="blossoms"></div><div class="rain"></div><div class="garden-note">拂柳观花 · 静候春信</div><div class="scene-title"><strong>春庭未晚</strong>青石柳影 · 梅开月洞</div><div class="hint">拨动柳丝，停驻拱门</div></section>
+    <div class="grain"></div><div class="nav"><button data-go="room">花窗</button><button data-go="pond">池塘</button><button data-go="garden">花园</button></div>
+  </main>
   <script>
-    /* =========================================================
-       DIFY DATA INJECTION POINT
-       ---------------------------------------------------------
-       Dify 会把工作流输出的 JSON 注入到 window.DIFY_DATA。
-       如果没有注入，则使用下面的示例数据 (SAMPLE_DATA) 渲染。
-       ========================================================= */
-    /*__DIFY_DATA__*/   // Dify 可在此处注入： window.DIFY_DATA = {...};
-
-    const SAMPLE_DATA = {
-      "title": "为您推荐 5 项竞赛",
-      "description": "基于您的画像（计算机·大三·GPA3.6·数模省一），从《2025 竞赛纲要》白名单中匹配到 5 项高匹配度竞赛，按推免加分权重与专业匹配度综合排序：",
-      "filters": [
-        { "label": "特级", "count": 1, "level": "special", "url": "" },
-        { "label": "一级", "count": 2, "level": "first", "url": "" },
-        { "label": "二级", "count": 2, "level": "second", "url": "" }
-      ],
-      "totalLabel": "全部 5 项",
-      "totalUrl": "",
-      "competitions": [
-        {
-          "icon": "🏅",
-          "name": "中国高校计算机大赛 - 人工智能创意赛",
-          "badge": "特级",
-          "badgeStyle": "purple",
-          "matchLabel": "专业匹配",
-          "matchPercent": 95,
-          "deadline": "2026-06-30",
-          "period": "2-3 个月",
-          "team": "1-3 人",
-          "difficulty": 4,
-          "bonus": "6 分 (国一)",
-          "organizer": "全国高等学校计算机教育研究会",
-          "registerUrl": "",
-          "detail": {
-            "title": "中国高校计算机大赛 - 人工智能创意赛",
-            "tags": [
-              { "icon": "🥇", "label": "一级竞赛" },
-              { "icon": "✅", "label": "官方白名单" },
-              { "icon": "💻", "label": "计算机类" },
-              { "icon": "👥", "label": "团队赛" }
-            ],
-            "sections": [
-              {
-                "icon": "📋",
-                "title": "基本信息",
-                "rows": [
-                  { "label": "竞赛全称", "value": "中国高校计算机大赛 - 人工智能创意赛（C4-AI）" },
-                  { "label": "主办方", "value": "全国高等学校计算机教育研究会" },
-                  { "label": "竞赛级别", "value": "一级（推免加分 6 分）", "highlight": true },
-                  { "label": "报名截止", "value": "2026-06-30 23:59" },
-                  { "label": "比赛时间", "value": "初赛：2026-08-01 ～ 08-15　　决赛：2026-10-15 ～ 10-20" },
-                  { "label": "参赛形式", "value": "团队赛（1-3 人），可跨校组队" },
-                  { "label": "报名费用", "value": "免费" }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "icon": "🏆",
-          "name": "“挑战杯”全国大学生课外学术科技作品竞赛",
-          "badge": "特级",
-          "badgeStyle": "gold",
-          "matchLabel": "专业匹配",
-          "matchPercent": 88,
-          "deadline": "2026-04-15",
-          "period": "6 个月+",
-          "team": "1-8 人",
-          "difficulty": 5,
-          "bonus": "8 分 (国特)",
-          "organizer": "共青团中央、中国科协、教育部",
-          "registerUrl": "",
-          "detail": {
-            "title": "“挑战杯”全国大学生课外学术科技作品竞赛",
-            "tags": [
-              { "icon": "🥇", "label": "特级竞赛" },
-              { "icon": "✅", "label": "官方白名单" },
-              { "icon": "🎓", "label": "综合类" },
-              { "icon": "👥", "label": "团队赛" }
-            ],
-            "sections": [
-              {
-                "icon": "📋",
-                "title": "基本信息",
-                "rows": [
-                  { "label": "竞赛全称", "value": "“挑战杯”全国大学生课外学术科技作品竞赛" },
-                  { "label": "主办方", "value": "共青团中央、中国科协、教育部" },
-                  { "label": "竞赛级别", "value": "特级（推免加分 8 分）", "highlight": true },
-                  { "label": "报名截止", "value": "2026-04-15 23:59" },
-                  { "label": "比赛时间", "value": "校赛：2026-05　　省赛：2026-07　　国赛：2026-11" },
-                  { "label": "参赛形式", "value": "团队赛（1-8 人），可跨校组队" },
-                  { "label": "报名费用", "value": "免费" }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    };
-
-    // 默认兜底跳转链接（尚未给出真实链接前，统一跳百度）
-    const FALLBACK_URL = "https://www.baidu.com";
-
-    const data = (window.DIFY_DATA && typeof window.DIFY_DATA === "object")
-      ? window.DIFY_DATA
-      : SAMPLE_DATA;
-
-    // ---------- helpers ----------
-    function esc(s) {
-      return String(s == null ? "" : s)
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-    function url(u) { return esc(u || FALLBACK_URL); }
-    function stars(n) {
-      n = Math.max(0, Math.min(5, Number(n) || 0));
-      return "★".repeat(n) + "☆".repeat(5 - n);
-    }
-    function go(u) { window.open(u || FALLBACK_URL, "_blank"); }
-
-    // ---------- list view ----------
-    function renderList() {
-      const filtersHtml = (data.filters || []).map(f => `
-        <a class="pill ${esc(f.level)}" href="${url(f.url)}" target="_blank"
-           onclick="event.stopPropagation()">
-          <span class="emoji">🏅</span>${esc(f.label)} (${esc(f.count)})
-        </a>`).join("");
-
-      const cardsHtml = (data.competitions || []).map((c, i) => `
-        <div class="card" onclick="showDetail(${i})">
-          <div class="card-head">
-            <div class="card-title"><span class="emoji">${esc(c.icon || "🏅")}</span>${esc(c.name)}</div>
-            <span class="badge ${esc(c.badgeStyle || "purple")}">${esc(c.badge || "")}</span>
-          </div>
-
-          <div class="match-row">
-            <span class="match-label">${esc(c.matchLabel || "专业匹配")}</span>
-            <div class="match-bar"><div class="match-fill" style="width:${Number(c.matchPercent) || 0}%"></div></div>
-            <span class="match-pct">${Number(c.matchPercent) || 0}%</span>
-          </div>
-
-          <div class="info-grid">
-            <div class="info-item"><span class="ic">📅</span>报名截止：${esc(c.deadline)}</div>
-            <div class="info-item"><span class="ic">⏱️</span>备赛周期：${esc(c.period)}</div>
-            <div class="info-item"><span class="ic">👥</span>团队：${esc(c.team)}</div>
-            <div class="info-item"><span class="ic" style="color:#33cf57">📊</span>难度系数：<span class="stars">${stars(c.difficulty)}</span></div>
-            <div class="info-item"><span class="ic">🏆</span>推免加分：${esc(c.bonus)}</div>
-            <div class="info-item"><span class="ic" style="color:#e5533d">📍</span>主办方：${esc(c.organizer)}</div>
-          </div>
-
-          <div class="actions">
-            <button class="btn primary" onclick="event.stopPropagation(); showDetail(${i})">📋 查看详情</button>
-            <span class="btn ghost" onclick="event.stopPropagation()"></span>
-            <a class="btn outline" href="${url(c.registerUrl)}" target="_blank"
-               onclick="event.stopPropagation()">🔗 报名入口</a>
-          </div>
-        </div>`).join("");
-
-      document.getElementById("view-list").innerHTML = `
-        <div class="header">
-          <div class="title-chip"><span class="emoji">🏆</span>${esc(data.title)}</div>
-        </div>
-        <div class="intro">${esc(data.description)}</div>
-        <div class="filters">
-          ${filtersHtml}
-          <a class="pill total" href="${url(data.totalUrl)}" target="_blank"
-             onclick="event.stopPropagation()">${esc(data.totalLabel || "全部")}</a>
-        </div>
-        <div class="cards">${cardsHtml}</div>
-      `;
-    }
-
-    // ---------- detail view ----------
-    function renderDetail(i) {
-      const c = (data.competitions || [])[i] || {};
-      const d = c.detail || {};
-
-      const tagsHtml = (d.tags || []).map(t => `
-        <span class="tag"><span class="ic">${esc(t.icon || "")}</span>${esc(t.label)}</span>
-      `).join("");
-
-      const sectionsHtml = (d.sections || []).map(sec => `
-        <div class="section-title"><span>${esc(sec.icon || "📋")}</span>${esc(sec.title)}</div>
-        <div class="info-table">
-          ${(sec.rows || []).map(r => `
-            <div class="info-row">
-              <div class="lab">${esc(r.label)}</div>
-              <div class="val ${r.highlight ? "highlight" : ""}">${esc(r.value)}</div>
-            </div>`).join("")}
-        </div>
-      `).join("");
-
-      document.getElementById("view-detail").innerHTML = `
-        <div class="detail-header">
-          <button class="back-link" onclick="showList()">← 返回推荐列表</button>
-          <div class="detail-title">${esc(d.title || c.name)}</div>
-          <div class="detail-tags">${tagsHtml}</div>
-        </div>
-        <div class="detail-body">${sectionsHtml}</div>
-      `;
-    }
-
-    // ---------- navigation ----------
-    function showDetail(i) {
-      renderDetail(i);
-      document.getElementById("view-list").classList.add("hidden");
-      document.getElementById("view-detail").classList.remove("hidden");
-      window.scrollTo(0, 0);
-    }
-    function showList() {
-      document.getElementById("view-detail").classList.add("hidden");
-      document.getElementById("view-list").classList.remove("hidden");
-      window.scrollTo(0, 0);
-    }
-
-    // 初始渲染列表
-    renderList();
+    const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+    const scenes = $$('.scene'); let current = 'room', fishMoves = 0, gardenOpened = false;
+    // build the rain, willow and unopened plum branches once so GSAP can animate real scene elements
+    $$('.rain').forEach(rain => { for(let i=0;i<74;i++){ const d=document.createElement('i'); d.className='drop'; d.style.cssText=`left:${Math.random()*100}%;animation-duration:${.65+Math.random()*1.25}s;animation-delay:-${Math.random()*2}s`; rain.append(d); }});
+    const willowHolder=document.getElementById('willowHolder'); for(let i=0;i<28;i++){const w=document.createElement('i');w.className='willow';w.style.cssText=`left:${35+i*7}px;top:${55+(i%6)*12}px;transform:rotate(${i%2?8:-9}deg)`;willowHolder.append(w)}
+    const blossoms=document.getElementById('blossoms'); for(let i=0;i<38;i++){const b=document.createElement('span');b.className='blossom';b.style.cssText=`left:${42+Math.random()*20}%;top:${20+Math.random()*27}%;transition:${.8+Math.random()*1.4}s ${Math.random()*.5}s`;b.innerHTML='<i></i><i></i><i></i><i></i><b></b>';blossoms.append(b)}
+    function showScene(id){ if(id===current)return; const old=document.getElementById(current), next=document.getElementById(id); gsap.to(old,{opacity:0,duration:.65,onComplete:()=>old.classList.remove('active')}); next.classList.add('active'); gsap.fromTo(next,{opacity:0,scale:1.04},{opacity:1,scale:1,duration:1.05,ease:'power2.out'}); current=id; }
+    const windowEl=document.getElementById('window');
+    windowEl.addEventListener('mouseenter',()=>gsap.to('#window .left',{rotateY:-108,duration:1.15,ease:'power2.inOut'}));
+    windowEl.addEventListener('mouseleave',()=>gsap.to('#window .left',{rotateY:0,duration:.8,ease:'power2.out'}));
+    windowEl.addEventListener('mouseenter',()=>gsap.to('#window .right',{rotateY:108,duration:1.15,ease:'power2.inOut'}));
+    windowEl.addEventListener('mouseleave',()=>gsap.to('#window .right',{rotateY:0,duration:.8,ease:'power2.out'}));
+    windowEl.addEventListener('click',()=>showScene('pond'));
+    function swim(fish, targetX, targetY, angle){ gsap.to(fish,{left:targetX+'%',top:targetY+'%',rotation:angle,duration:1.15,ease:'power2.out',onComplete:()=>{fishMoves++;if(fishMoves>=2)makeTaiji()}}); gsap.fromTo(fish.querySelector('.tail'),{rotation:-18},{rotation:18,yoyo:true,repeat:5,duration:.11}); }
+    document.getElementById('redFish').addEventListener('mouseenter',function(){swim(this,42,49,25)});
+    document.getElementById('blackFish').addEventListener('mouseenter',function(){swim(this,49,55,-25)});
+    function makeTaiji(){ const pond=document.getElementById('pond'); if(pond.classList.contains('taiji-ready'))return; pond.classList.add('taiji-ready'); gsap.to('#redFish',{left:'44%',top:'47%',rotation:0,duration:.7});gsap.to('#blackFish',{left:'47%',top:'54%',rotation:180,duration:.7}); gsap.to(['#redFish','#blackFish'],{rotation:'+=360',duration:2.8,repeat:-1,ease:'none',transformOrigin:'50% 50%'}); }
+    document.getElementById('taijiMessage').addEventListener('click',()=>showScene('garden'));
+    const tree=document.getElementById('tree'); tree.addEventListener('mousemove',e=>{const r=tree.getBoundingClientRect(); gsap.to('#willowHolder',{rotation:(e.clientX-r.left-r.width/2)/14,duration:.7,ease:'power2.out'});});tree.addEventListener('mouseleave',()=>gsap.to('#willowHolder',{rotation:0,duration:1.5,ease:'elastic.out(1,.35)'}));
+    document.getElementById('arch').addEventListener('mouseenter',()=>{if(!gardenOpened){gardenOpened=true;document.getElementById('garden').classList.add('garden-open');gsap.fromTo('.blossom',{scale:.05,opacity:0},{scale:1,opacity:1,stagger:.035,duration:1.2,ease:'back.out(1.4)'})}});
+    $$('.nav button').forEach(b=>b.addEventListener('click',()=>showScene(b.dataset.go)));
   </script>
 </body>
 </html>
